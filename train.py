@@ -12,9 +12,6 @@ from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from tensorflow.python.ops.gen_array_ops import fill
-
-from tensorflow.python.ops.gen_math_ops import Imag
 
 
 # initialize learning rate, number of epochs, and batch size (for training)
@@ -24,12 +21,12 @@ BS = 32
 
 # directory of dataset
 DIR = r'dataset'
-CATEGORIES = ['with_mask', 'without_mask']
+CATEGORIES = ['with_glasses', 'without_glasses']
 
 # create a list of images using the dataset
 print("[INFO] Loading images...")
 
-# array of tuples, tuple has image array and with/without mask label
+# array of tuples, tuple has image array and with/without glasses label
 data = []
 labels = []
 
@@ -52,8 +49,8 @@ for category in CATEGORIES:
 # one-hot encoding ensures that machine learning does not assume that
 # higher numbers are more important.
 
-# with mask would be converted to [1. 0.]
-# without mask would be converted to [0. 1.]
+# with glasses would be converted to [1. 0.]
+# without glasses would be converted to [0. 1.]
 lb = LabelBinarizer()
 labels = lb.fit_transform(labels)
 labels = to_categorical(labels)
@@ -123,7 +120,7 @@ print(classification_report(testY.argmax(axis=1),
 
 # save model
 print("[INFO] saving model...")
-model.save("mask_detection.model", save_format='h5')
+model.save("glasses_detection.model", save_format='h5')
 
 # plot training & loss accuracy
 N = EPOCHS
