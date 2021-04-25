@@ -9,7 +9,7 @@ import time
 import os
 
 
-def detect_mask(frame, faceNet, maskNet):
+def detect_glasses(frame, faceNet, glassesNet):
     # make blob from image
     (h, w) = frame.shape[:2]
     blob = cv2.dnn.blobFromImage(frame, 1.0, (224, 224), (104.0, 177.0, 123.0))
@@ -19,7 +19,7 @@ def detect_mask(frame, faceNet, maskNet):
     face_detections = faceNet.forward()
 
     # init list of faces and their locations along
-    # with list of predictions from face mask network
+    # with list of predictions from glasses network
     faces = []
     locations = []
     predictions = []
@@ -50,10 +50,10 @@ def detect_mask(frame, faceNet, maskNet):
             faces.append(face)
             locations.append((startX, startY, endX, endY))
 
-    # only make mask predictions if we detect faces
+    # only make glasses predictions if we detect faces
     if len(faces) > 0:
         faces = np.array(faces, dtype='float32')
-        predictions = maskNet.predict(faces, batch_size=32)
+        predictions = glassesNet.predict(faces, batch_size=32)
 
     # return tuple with locations & predictions
     return (locations, predictions)
@@ -64,8 +64,8 @@ prototxt = r'face_detection/deploy.prototxt'
 caffemodel = r'face_detection/res10_300x300_ssd_iter_140000.caffemodel'
 faceNet = cv2.dnn.readNet(prototxt, caffemodel)
 
-# load the face mask detection model we made in train.py
-maskNet = load_model('mask_detection.model')
+# load the glasses detection model we made in train.py
+glassesNet = load_model('glasses_detection.model')
 
 # start the video stream from webcam
 print("[INFO] starting video stream...")
@@ -74,23 +74,23 @@ vs = VideoStream(src=0).start()
 # loop over video frames
 while True:
     frame = vs.read()
-    frame = imutils.resize(frame, width=800)
+    frame = imutils.resize(frame, width=600)
 
     # detect faces in frame and determine if they're
-    # wearing a mask or not
-    (locations, predictions) = detect_mask(frame, faceNet, maskNet)
+    # wearing glasses or not
+    (locations, predictions) = detect_glasses(frame, faceNet, glassesNet)
 
     # loop over detected locations
     for (box, prediction) in zip(locations, predictions):
         (startX, startY, endX, endY) = box
-        (mask, withoutMask) = prediction
+        (glasses, withoutGlasses) = prediction
 
         # determine label
-        label = "Mask" if mask > withoutMask else "No Mask"
-        color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+        label = "Glasses" if glasses > withoutGlasses else "No Glasses"
+        color = (0, 255, 0) if label == "Glasses" else (0, 0, 255)
 
         # label text with probability
-        label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
+        label = "{}: {:.2f}%".format(label, max(glasses, withoutGlasses) * 100)
 
         # display box & label on frame
         cv2.putText(frame, label, (startX, startY - 10),
