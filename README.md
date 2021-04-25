@@ -11,7 +11,7 @@ Detects people in camera and determines if they're wearing glasses or not.
    `python3 app.py`
 
 - Note: If on windows change the file paths in app.py for the prototxt and caffemodel.
-- Note: To train the model yourself, run `python3 train.py`.
+- Note: To train the model yourself, run `python3 train.py`
 
 ## Sources
 
